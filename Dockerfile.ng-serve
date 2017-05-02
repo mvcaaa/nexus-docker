@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:latest
 
-ENV IMAGE_VERSION 0.1
+ENV IMAGE_VERSION 0.2
 
 RUN apk add --no-cache bash wget
 
