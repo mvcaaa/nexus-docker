@@ -4,7 +4,7 @@ services:
 language: bash
 script:
 # build image
-- docker build -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
+- docker build --build-arg GITHUB_API_KEY=$GITHUB_API_KEY -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
 # test image
 - docker run mvcaaa/nexus-ng-serve npm --version
 # push image
