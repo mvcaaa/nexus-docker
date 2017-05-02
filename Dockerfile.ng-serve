@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:latest
 
-ENV IMAGE_VERSION 0.2
+ENV IMAGE_VERSION 0.3
 
 RUN apk add --no-cache bash curl
 
@@ -11,5 +11,5 @@ RUN npm install -g gulp ;\
 
 RUN mkdir -p /opt/npm
 WORKDIR /opt/npm
-RUN curl --insecure -H="Authorization: token $GITHUB_API_KEY" -H="Accept:application/vnd.github.v3.raw" -O https://api.github.com/repos/Enkora/nexus/contents/nexus_ng/package.json?ref=develop
+RUN curl --insecure -H="Authorization: token $GITHUB_API_KEY" -H="Accept:application/vnd.github.v3.raw" -o package.json https://api.github.com/repos/Enkora/nexus/contents/nexus_ng/package.json?ref=develop
 RUN npm install
