@@ -1,0 +1,19 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+# build image
+- docker build -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
+# test image
+- docker run mvcaaa/nexus-ng-serve npm --version
+# push image
+- >
+  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+    TAG=$(grep "ENV IMAGE_VERSION" Dockerfile.ng-serve | awk 'NF>1{print $NF}')
+    docker tag mvcaaa/nexus-ng-serve mvcaaa/nexus-ng-serve:$TAG
+    docker push mvcaaa/nexus-ng-serve:$TAG
+    docker push mvcaaa/nexus-ng-serve
+  fi
+# end
