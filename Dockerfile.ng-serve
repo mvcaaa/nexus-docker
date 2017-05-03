@@ -1,6 +1,6 @@
-FROM mhart/alpine-node:latest
+FROM mhart/alpine-node:7.9
 
-ENV IMAGE_VERSION 0.6
+ENV IMAGE_VERSION 0.7
 ARG GITHUB_API_KEY
 
 RUN apk add --no-cache bash wget
@@ -14,10 +14,5 @@ RUN mkdir -p /opt/npm
 WORKDIR /opt/npm
 RUN /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O package.json https://api.github.com/repos/Enkora/nexus/contents/nexus_ng/package.json?ref=develop
 RUN npm install
-
-RUN mkdir -p /opt/certs
-WORKDIR /opt/certs
-RUN /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O dev.local.crt https://api.github.com/repos/Enkora/docker/contents/web/config/nginx/certs/dev.local.crt?ref=develop
-RUN /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O dev.local.key https://api.github.com/repos/Enkora/docker/contents/web/config/nginx/certs/dev.local.key?ref=develop
 
 EXPOSE 4200
