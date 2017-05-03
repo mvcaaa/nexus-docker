@@ -1,7 +1,6 @@
 FROM mhart/alpine-node:latest
 
-ENV IMAGE_VERSION 0.4
-ENV NPM_HOME /opt/npm
+ENV IMAGE_VERSION 0.5
 ARG GITHUB_API_KEY
 
 RUN apk add --no-cache bash wget
