@@ -1,0 +1,94 @@
+FROM php:7.0-fpm-alpine
+
+ENV IMAGE_VERSION 0.5
+# Register the COMPOSER_HOME environment variable
+ENV COMPOSER_HOME /composer
+ENV COMPOSER_VERSION 1.2.0
+ARG GITHUB_API_KEY
+
+# Add global binary directory to PATH and make sure to re-export it
+ENV PATH /composer/vendor/bin:$PATH
+
+# Allow Composer to be run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
+
+RUN apk add --no-cache --update \
+  git \
+  subversion \
+  curl-dev \
+  freetype-dev \
+  gettext-dev \
+  libjpeg-turbo-dev \
+  libmcrypt-dev \
+  libpng-dev \
+  libbz2 \
+  bzip2-dev \
+  libstdc++ \
+  libxslt-dev \
+  openldap-dev \
+  make \
+  unzip \
+  bash \
+  wget && \
+  apk add --no-cache --update --virtual .build-dependencies alpine-sdk build-base
+
+RUN docker-php-ext-install calendar curl gettext bcmath mcrypt mysqli pdo_mysql shmop zip bz2 sockets wddx mbstring opcache pcntl xml xsl && \
+  docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+  docker-php-ext-install gd && \
+  docker-php-ext-configure ldap --with-libdir=lib/ && \
+  docker-php-ext-install ldap
+
+# Add enkorascripts user
+RUN addgroup devel && \
+    addgroup enkorascripts && \
+    adduser -D -S -h /home/enkorascripts -s /bin/bash -G www-data -G devel -G enkorascripts enkorascripts && \
+    echo enkorascripts:password | chpasswd && \
+    mkdir -p /home/enkorascripts/.ssh
+
+# Installations folder
+RUN mkdir -p /var/www/installations && \
+    mkdir -p /var/www/boot && \
+    rm -rf /var/www/html
+
+ADD files/misc/boot /var/www/boot
+
+RUN chown www-data:devel /var/www/installations && \
+    chown -R www-data:devel /var/www/boot && \
+    chmod g+w /var/www/installations && \
+    chmod -R g+w /var/www/boot
+
+
+# SSH key to allow passwordless login for enkorascripts to this container
+ADD files/misc/.ssh/enkorascripts-ssh.pub /tmp/enkorascripts-ssh.pub
+RUN cat /tmp/enkorascripts-ssh.pub >> /home/enkorascripts/.ssh/authorized_keys && rm -f /tmp/enkorascripts-ssh.pub
+
+# Readonly Git key for nexus repository
+ADD files/misc/.ssh/github-readonly.key files/misc/.ssh/config /home/enkorascripts/.ssh/
+RUN chmod 400 /home/enkorascripts/.ssh/github-readonly.key && \
+    chown -R enkorascripts:enkorascripts /home/enkorascripts
+
+RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /usr/local/etc/php-fpm.conf
+ADD files/php/php.ini /usr/local/etc/php
+
+# Memory Limit
+RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini && \
+    echo "date.timezone=${PHP_TIMEZONE:-UTC}" > $PHP_INI_DIR/conf.d/date_timezone.ini
+
+# Setup the Composer installer
+RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
+  && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
+  && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }"
+
+# Install Composer
+RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php
+
+# Display version information.
+RUN composer --version
+
+RUN mkdir /tmp/nexus-lib
+WORKDIR /tmp/nexus-lib
+RUN /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O composer.json https://api.github.com/repos/Enkora/nexus/contents/lib/composer.json?ref=develop && \
+    /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O composer.lock https://api.github.com/repos/Enkora/nexus/contents/lib/composer.lock?ref=develop && \
+    composer --working-dir=/tmp/nexus-lib --dev --verbose --optimize-autoloader install
+
+RUN apk del .build-dependencies

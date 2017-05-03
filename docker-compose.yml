@@ -1,0 +1,19 @@
+ng-serve:
+  image: mvcaaa/nexus-ng-serve
+  entrypoint: bash
+  command: -c "cd /var/www/installations/nexus/nexus_ng ; ln -s /opt/npm/node_modules node_modules ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
+  volumes:
+    - ./files/nginx/certs:/opt/certs
+    - /path/to/local/nexus:/var/www/installations/nexus
+  ports:
+    - 4200:4200
+
+php-fpm:
+  image: mvcaaa/nexus-php-fpm
+  entrypoint: bash
+  command: -c "cd /var/www/installations/nexus ; ln -s /tmp/nexus-lib/vendor lib/vendor ; php-fpm"
+  volumes:
+    - /path/to/local/nexus:/var/www/installations/nexus
+    - /path/to/backups:/var/backups
+  ports:
+    - 9000:9000

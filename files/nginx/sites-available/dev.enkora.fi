@@ -1,0 +1,88 @@
+server {
+	listen 80;
+	server_name dev.local;
+	rewrite ^ https://dev.local$request_uri?;
+}
+
+server {
+	listen 443;
+
+	ssl on;
+	ssl_certificate certs/dev.local.crt;
+	ssl_certificate_key certs/dev.local.key;
+
+	ssl_protocols SSLv3 TLSv1;
+	ssl_ciphers RC4+RSA:ALL:!ADH:!EXPORT:!LOW:!eNULL;
+	ssl_prefer_server_ciphers on;
+
+	root /var/www/installations;
+	index index.php;
+
+	server_name dev.local;
+
+	location / {
+		try_files $uri $uri/ /index.html;
+		autoindex      on;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	# Nexus installations, match /some_thing-path* (e.g. /some_thing-path/jotain/...)
+	location ~* ^/[a-z0-9\_\-]+(/.*)*$ {
+
+		fastcgi_param PHP_VALUE "display_errors=1";
+
+		# Add trailing slash (/nexus_jotain/joku to /nexus_jotain/joku/)
+		rewrite ^/([^/]+)$ /$1/ permanent;
+
+		# Rewrite stuff to index.php
+		rewrite ^/([^/]+)(/.*)*$ /$1/index.php break;
+
+		# Fast CGI php
+		include include/fastcgi.conf;
+		fastcgi_param SCRIPT_FILENAME /var/www/boot/boot_nexus.php;
+
+		# Css, js, etc static resources mapping
+		location ~* ^/([a-z0-9\_\-]+)/resource/(.*\.(css|js|svg|swf)) {
+			alias /var/www/installations/$1/nexus_app/resource/$3/$2;
+			access_log /var/log/nginx/resources-access.log;
+		}
+
+		location ~* ^/([a-z0-9\_\-]+)/ng\/dist/(.*\.(js)) {
+			proxy_pass https://127.0.0.1:4200/$2;
+			proxy_redirect off;
+			proxy_buffering off;
+		}
+
+		location ~* ^/([a-z0-9\_\-]+)/ng/(.*\.(js)) {
+			proxy_pass https://127.0.0.1:4200/$2;
+			proxy_redirect off;
+			proxy_buffering off;
+      }
+
+		# Images
+		location ~* ^/([a-z0-9\_\-]+)/resource/(((?!floorplan).*)\.(png|gif|jpg|ico)) {
+			alias /var/www/installations/$1/nexus_app/resource/image/$2;
+			access_log /var/log/nginx/resources-access.log;
+		}
+
+		# Fonts
+		location ~* ^/([a-z0-9\_\-]+)/resource/(.*\.(eot|ttf|woff)) {
+			alias /var/www/installations/$1/nexus_app/resource/font/$2;
+			access_log /var/log/nginx/resources-access.log;
+		}
+
+		# Partials
+		location ~* ^/([a-z0-9\_\-]+)/app/partials/(.*\.(html)) {
+			alias /var/www/installations/$1/nexus_app/angularjs/$2;
+			access_log /var/log/nginx/resources-access.log;
+		}
+	}
+	
+	# PHP files
+	location ~ \.php$ {
+		include include/fastcgi.conf;
+	}
+}
