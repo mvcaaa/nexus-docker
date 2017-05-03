@@ -8,7 +8,7 @@ script:
 - docker build --build-arg GITHUB_API_KEY=$GITHUB_API_KEY -t mvcaaa/nexus-php-fpm -f Dockerfile.php-fpm .
 # test image
 - docker run mvcaaa/nexus-ng-serve npm --version
-- docker run mvcaaa/nnexus-php-fpm composer --version
+- docker run mvcaaa/nexus-php-fpm composer --version
 # push image
 - >
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
