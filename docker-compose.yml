@@ -1,7 +1,7 @@
 ng-serve:
   image: mvcaaa/nexus-ng-serve
   entrypoint: bash
-  command: -c "cd /var/www/installations/nexus/nexus_ng ; ln -s /opt/npm/node_modules node_modules ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
+  command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
   volumes:
     - ./files/nginx/certs:/opt/certs
     - /path/to/local/nexus:/var/www/installations/nexus
@@ -11,9 +11,22 @@ ng-serve:
 php-fpm:
   image: mvcaaa/nexus-php-fpm
   entrypoint: bash
-  command: -c "cd /var/www/installations/nexus ; ln -s /tmp/nexus-lib/vendor lib/vendor ; php-fpm"
+  command: -c "cd /var/www/installations/nexus ; php-fpm"
   volumes:
     - /path/to/local/nexus:/var/www/installations/nexus
     - /path/to/backups:/var/backups
   ports:
     - 9000:9000
+  links:
+    - mysql
+
+mysql:
+  image: mysql:5.7
+  volumes:
+    - /path/to/mysql/data:/var/lib/mysql
+    - ./files/mysql/config/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./files/mysql/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
+  environment:
+    - MYSQL_ROOT_PASSWORD=
+  ports:
+    - 3306:3306

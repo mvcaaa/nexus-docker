@@ -2,7 +2,7 @@ FROM php:7.0-fpm-alpine
 
 ENV IMAGE_VERSION 0.5
 # Register the COMPOSER_HOME environment variable
-ENV COMPOSER_HOME /composer
+ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
 ARG GITHUB_API_KEY
 
@@ -56,16 +56,6 @@ RUN chown www-data:devel /var/www/installations && \
     chown -R www-data:devel /var/www/boot && \
     chmod g+w /var/www/installations && \
     chmod -R g+w /var/www/boot
-
-
-# SSH key to allow passwordless login for enkorascripts to this container
-ADD files/misc/.ssh/enkorascripts-ssh.pub /tmp/enkorascripts-ssh.pub
-RUN cat /tmp/enkorascripts-ssh.pub >> /home/enkorascripts/.ssh/authorized_keys && rm -f /tmp/enkorascripts-ssh.pub
-
-# Readonly Git key for nexus repository
-ADD files/misc/.ssh/github-readonly.key files/misc/.ssh/config /home/enkorascripts/.ssh/
-RUN chmod 400 /home/enkorascripts/.ssh/github-readonly.key && \
-    chown -R enkorascripts:enkorascripts /home/enkorascripts
 
 RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /usr/local/etc/php-fpm.conf
 ADD files/php/php.ini /usr/local/etc/php
