@@ -1,10 +1,9 @@
 FROM php:7.0-fpm-alpine
 
-ENV IMAGE_VERSION 0.5
+ENV IMAGE_VERSION 0.7
 # Register the COMPOSER_HOME environment variable
 ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
-ARG GITHUB_API_KEY
 
 # Add global binary directory to PATH and make sure to re-export it
 ENV PATH /composer/vendor/bin:$PATH
@@ -29,8 +28,11 @@ RUN apk add --no-cache --update \
   make \
   unzip \
   bash \
+  tzdata \
   wget && \
   apk add --no-cache --update --virtual .build-dependencies alpine-sdk build-base
+
+RUN cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
 
 RUN docker-php-ext-install calendar curl gettext bcmath mcrypt mysqli pdo_mysql shmop zip bz2 sockets wddx mbstring opcache pcntl xml xsl && \
   docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
@@ -48,9 +50,11 @@ RUN addgroup devel && \
 # Installations folder
 RUN mkdir -p /var/www/installations && \
     mkdir -p /var/www/boot && \
+    mkdir -p /var/www/installations/nexus/lib && \
     rm -rf /var/www/html
 
-ADD files/misc/boot /var/www/boot
+ADD files/php/boot /var/www/boot
+COPY files/php/composer.json files/php/composer.lock /var/www/installations/nexus/lib/
 
 RUN chown www-data:devel /var/www/installations && \
     chown -R www-data:devel /var/www/boot && \
@@ -75,10 +79,7 @@ RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filenam
 # Display version information.
 RUN composer --version
 
-RUN mkdir /tmp/nexus-lib
-WORKDIR /tmp/nexus-lib
-RUN /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O composer.json https://api.github.com/repos/Enkora/nexus/contents/lib/composer.json?ref=develop && \
-    /usr/bin/wget --no-check-certificate --header="Authorization: token $GITHUB_API_KEY" --header="Accept:application/vnd.github.v3.raw" -O composer.lock https://api.github.com/repos/Enkora/nexus/contents/lib/composer.lock?ref=develop && \
-    composer --working-dir=/tmp/nexus-lib --dev --verbose --optimize-autoloader install
+WORKDIR /var/www/installations/nexus/lib
+RUN composer --dev --verbose --optimize-autoloader install
 
 RUN apk del .build-dependencies

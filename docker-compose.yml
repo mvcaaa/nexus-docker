@@ -1,24 +1,36 @@
+web-data:
+   image: busybox:latest
+   entrypoint: /bin/tail
+   command: -f /dev/null
+   volumes:
+      - /path/to/local/nexus:/var/www/installations/nexus
+      - /path/to/local/backups:/var/backups
+
 ng-serve:
-  image: mvcaaa/nexus-ng-serve
+  image: mvcaaa/nexus-ng-serve:0.9.5
   entrypoint: bash
   command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
   volumes:
+    - /var/www/installations/nexus/nexus_ng/node_modules
     - ./files/nginx/certs:/opt/certs
-    - /path/to/local/nexus:/var/www/installations/nexus
+  volumes_from:
+    - web-data
   ports:
     - 4200:4200
 
 php-fpm:
-  image: mvcaaa/nexus-php-fpm
+  image: mvcaaa/nexus-php-fpm:0.7
   entrypoint: bash
   command: -c "cd /var/www/installations/nexus ; php-fpm"
   volumes:
-    - /path/to/local/nexus:/var/www/installations/nexus
-    - /path/to/backups:/var/backups
+    - /var/www/installations/nexus/lib/vendor
+  volumes_from:
+    - web-data
   ports:
     - 9000:9000
   links:
     - mysql
+    - redis
 
 mysql:
   image: mysql:5.7
@@ -28,5 +40,22 @@ mysql:
     - ./files/mysql/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
   environment:
     - MYSQL_ROOT_PASSWORD=
+    - TZ=Europe/Helsinki
   ports:
     - 3306:3306
+
+nginx:
+  image: mvcaaa/nexus-nginx:0.5
+  ports:
+    - 80:80
+    - 443:443
+  links:
+    - php-fpm
+    - ng-serve
+  volumes_from:
+    - web-data
+
+redis:
+  image: redis:alpine
+  volumes:
+    - /path/to/redis/data:/data

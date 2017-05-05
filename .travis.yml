@@ -4,11 +4,13 @@ services:
 language: bash
 script:
 # build image
-- docker build --build-arg GITHUB_API_KEY=$GITHUB_API_KEY -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
-- docker build --build-arg GITHUB_API_KEY=$GITHUB_API_KEY -t mvcaaa/nexus-php-fpm -f Dockerfile.php-fpm .
+- docker build -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
+- docker build -t mvcaaa/nexus-php-fpm -f Dockerfile.php-fpm .
+- docker build -t mvcaaa/nexus-nginx -f Dockerfile.nginx .
 # test image
 - docker run mvcaaa/nexus-ng-serve npm --version
 - docker run mvcaaa/nexus-php-fpm composer --version
+- docker run mvcaaa/nexus-nginx nginx -v
 # push image
 - >
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -17,11 +19,13 @@ script:
     docker tag mvcaaa/nexus-ng-serve mvcaaa/nexus-ng-serve:$TAG1
     docker push mvcaaa/nexus-ng-serve:$TAG1
     docker push mvcaaa/nexus-ng-serve
-
     TAG2=$(grep "ENV IMAGE_VERSION" Dockerfile.php-fpm | awk 'NF>1{print $NF}')
     docker tag mvcaaa/nexus-php-fpm mvcaaa/nexus-php-fpm:$TAG2
     docker push mvcaaa/nexus-php-fpm:$TAG2
     docker push mvcaaa/nexus-php-fpm
-
+    TAG3=$(grep "ENV IMAGE_VERSION" Dockerfile.nginx | awk 'NF>1{print $NF}')
+    docker tag mvcaaa/nexus-nginx mvcaaa/nexus-nginx:$TAG3
+    docker push mvcaaa/nexus-nginx:$TAG3
+    docker push mvcaaa/nexus-nginx
   fi
 # end

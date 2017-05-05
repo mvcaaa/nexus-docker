@@ -5,7 +5,7 @@ storage = "local"
 use_ng_live_reload = "true"
 
 [redis]
-host = "localhost"
+host = "redis"
 
 [aliases]
 

@@ -50,14 +50,14 @@ server {
 			access_log /var/log/nginx/resources-access.log;
 		}
 
-		location ~* ^/([a-z0-9\_\-]+)/ng\/dist/(.*\.(js)) {
-			proxy_pass https://127.0.0.1:4200/$2;
+		location ~* ^/([a-z0-9\_\-]+)/ng\/dist/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2)) {
+			proxy_pass https://ng-serve:4200/$2;
 			proxy_redirect off;
 			proxy_buffering off;
 		}
 
-		location ~* ^/([a-z0-9\_\-]+)/ng/(.*\.(js)) {
-			proxy_pass https://127.0.0.1:4200/$2;
+		location ~* ^/([a-z0-9\_\-]+)/ng/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2)) {
+			proxy_pass https://ng-serve:4200/$2;
 			proxy_redirect off;
 			proxy_buffering off;
       }
@@ -80,7 +80,7 @@ server {
 			access_log /var/log/nginx/resources-access.log;
 		}
 	}
-	
+
 	# PHP files
 	location ~ \.php$ {
 		include include/fastcgi.conf;

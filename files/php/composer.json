@@ -1,0 +1,35 @@
+{
+	"require"    : {
+		"ircmaxell/password-compat"          : "v1.0.3",
+		"leafo/lessphp"                      : "v0.5.0",
+		"coffeescript/coffeescript"          : "dev-master#0dd272746cb16a420dfba8073e54312b0a7ccb1b",
+		"vlucas/valitron"                    : "dev-master#13d4374de56e417e35cf3ac7a3924baf74bd424d",
+		"rackspace/php-opencloud"            : "v1.12.1",
+		"twig/twig"                          : "v1.18.0",
+		"phpoffice/phpexcel"                 : "v1.8.1",
+		"zendframework/zendframework1"       : "1.12.16",
+		"colinmollenhour/credis"             : "1.5",
+		"colinmollenhour/cache-backend-redis": "1.8.1",
+		"google/apiclient"                   : "1.1.6",
+		"aws/aws-sdk-php"                    : "3.14.1",
+		"robmorgan/phinx"                    : "v0.5.3",
+		"mpdf/mpdf"                          : "^6.0",
+		"phpseclib/phpseclib"                : "^2.0",
+		"fergusean/nusoap"                   : "^0.9.5",
+		"iignatov/lightopenid"               : "^1.0"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "@stable",
+		"phpmd/phpmd"              : "@stable",
+		"phpunit/phpunit"          : "4.*",
+		"phpunit/phpunit-selenium" : "1.4.2",
+		"phpunit/php-code-coverage": "@stable",
+		"phpunit/php-text-template": "@stable"
+	},
+	"extra"      : {
+		"magento-root-dir": "root"
+	},
+	"autoload"   : {
+		"classmap": ["vendor/colinmollenhour/cache-backend-redis/Cm/Cache/Backend/Redis.php"]
+	}
+}
