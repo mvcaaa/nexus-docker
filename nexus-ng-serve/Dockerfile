@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-ENV IMAGE_VERSION 0.9.5
+ENV IMAGE_VERSION 0.9.7
 RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 RUN apk update
@@ -18,7 +18,7 @@ RUN mkdir -p /var/www/installations/nexus/nexus_ng && \
     addgroup nexus_ng && \
     adduser -D -S -h /var/www/installations/nexus/nexus_ng -s /bin/false -G nexus_ng nexus_ng
 ENV HOME=/var/www/installations/nexus/nexus_ng
-COPY files/ng-serve/package.json /var/www/installations/nexus/nexus_ng
+COPY files/package.json /var/www/installations/nexus/nexus_ng
 RUN chown nexus_ng:nexus_ng /var/www/installations/nexus/nexus_ng/package.json
 USER nexus_ng
 WORKDIR $HOME

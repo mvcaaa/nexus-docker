@@ -9,7 +9,7 @@ RUN cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
 # Copy basic files
 RUN rm -f /etc/nginx/sites-available/* && \
     rm -f /etc/nginx/sites-enabled/*
-ADD files/nginx /etc/nginx
+ADD files /etc/nginx
 RUN chmod 600 /etc/nginx/certs/*
 
 EXPOSE 80

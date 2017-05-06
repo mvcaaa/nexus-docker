@@ -1,6 +1,6 @@
 FROM php:7.0-fpm-alpine
 
-ENV IMAGE_VERSION 0.7
+ENV IMAGE_VERSION 0.8
 # Register the COMPOSER_HOME environment variable
 ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
@@ -53,8 +53,7 @@ RUN mkdir -p /var/www/installations && \
     mkdir -p /var/www/installations/nexus/lib && \
     rm -rf /var/www/html
 
-ADD files/php/boot /var/www/boot
-COPY files/php/composer.json files/php/composer.lock /var/www/installations/nexus/lib/
+COPY files/composer.json files/composer.lock /var/www/installations/nexus/lib/
 
 RUN chown www-data:devel /var/www/installations && \
     chown -R www-data:devel /var/www/boot && \
@@ -62,7 +61,7 @@ RUN chown www-data:devel /var/www/installations && \
     chmod -R g+w /var/www/boot
 
 RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /usr/local/etc/php-fpm.conf
-ADD files/php/php.ini /usr/local/etc/php
+ADD files/php.ini /usr/local/etc/php
 
 # Memory Limit
 RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini && \
