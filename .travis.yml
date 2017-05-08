@@ -4,9 +4,9 @@ services:
 language: bash
 script:
 # build image
-- docker build -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve .
-- docker build -t mvcaaa/nexus-php-fpm -f Dockerfile.php-fpm .
-- docker build -t mvcaaa/nexus-nginx -f Dockerfile.nginx .
+- docker build -t mvcaaa/nexus-ng-serve -f Dockerfile.ng-serve nexus-ng-serve/
+- docker build -t mvcaaa/nexus-php-fpm -f Dockerfile.php-fpm nexus-php-fpm/
+- docker build -t mvcaaa/nexus-nginx -f Dockerfile.nginx nexus-nginx/
 # test image
 - docker run mvcaaa/nexus-ng-serve npm --version
 - docker run mvcaaa/nexus-php-fpm composer --version

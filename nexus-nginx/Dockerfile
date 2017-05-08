@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-ENV IMAGE_VERSION 0.5
+ENV IMAGE_VERSION 1.0
 
 # Install nginx package and remove cache
 RUN apk add --update --no-cache nginx bash wget tzdata
@@ -11,6 +11,7 @@ RUN rm -f /etc/nginx/sites-available/* && \
     rm -f /etc/nginx/sites-enabled/*
 ADD files /etc/nginx
 RUN chmod 600 /etc/nginx/certs/*
+RUN chown -R nobody:nobody /var/lib/nginx
 
 EXPOSE 80
 

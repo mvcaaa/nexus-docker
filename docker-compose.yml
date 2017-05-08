@@ -1,71 +1,74 @@
-web-data:
-   image: busybox:latest
-   entrypoint: /bin/tail
-   command: -f /dev/null
-   volumes:
-      - /local/path/to/local/nexus:/var/www/installations/nexus
-      - /local/path/to/local/backups:/var/backups
+version: '2'
 
-ng-serve:
-  image: mvcaaa/nexus-ng-serve
-  build: 
-    context: ./nexus-ng-serve/
-    dockerfile: Dockerfile
-  entrypoint: bash
-  command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
-  volumes:
-    - /var/www/installations/nexus/nexus_ng/node_modules
-    - ./nexus-nginx/files/certs:/opt/certs
-  volumes_from:
-    - web-data
-  ports:
-    - 4200:4200
-
-php-fpm:
-  image: mvcaaa/nexus-php-fpm
-  build: 
-    context: ./nexus-php-fpm/
-    dockerfile: Dockerfile
-  entrypoint: bash
-  command: -c "cd /var/www/installations/nexus ; php-fpm"
-  volumes:
-    - /var/www/installations/nexus/lib/vendor
-    - nexus-php-fpm/files/boot:/var/www/boot
-  volumes_from:
-    - web-data
-  ports:
-    - 9000:9000
-  links:
-    - mysql
-    - redis
-
-mysql:
-  image: mysql:5.7
-  volumes:
-    - /local/path/to/mysql/data:/var/lib/mysql
-    - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
-    - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
-  environment:
-    - MYSQL_ROOT_PASSWORD=
-    - TZ=Europe/Helsinki
-  ports:
-    - 3306:3306
-
-nginx:
-  image: mvcaaa/nexus-nginx
-  build: 
-    context: ./nexus-nginx/
-    dockerfile: Dockerfile
-  ports:
-    - 80:80
-    - 443:443
-  links:
-    - php-fpm
-    - ng-serve
-  volumes_from:
-    - web-data
-
-redis:
-  image: redis:alpine
-  volumes:
-    - /local/path/to/redis/data:/data
+services:
+  web-data:
+     image: busybox:latest
+     entrypoint: /bin/tail
+     command: -f /dev/null
+     volumes:
+        - /local/path/to/local/nexus:/var/www/installations/nexus
+        - /local/path/to/local/backups:/var/backups
+  
+  ng-serve:
+    image: mvcaaa/nexus-ng-serve
+    build: 
+      context: ./nexus-ng-serve/
+      dockerfile: Dockerfile
+    entrypoint: bash
+    command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
+    volumes:
+      - /var/www/installations/nexus/nexus_ng/node_modules
+      - ./nexus-nginx/files/certs:/opt/certs
+    volumes_from:
+      - web-data
+    ports:
+      - 4200:4200
+  
+  php-fpm:
+    image: mvcaaa/nexus-php-fpm
+    build: 
+      context: ./nexus-php-fpm/
+      dockerfile: Dockerfile
+    entrypoint: bash
+    command: -c "cd /var/www/installations/nexus ; php-fpm"
+    volumes:
+      - /var/www/installations/nexus/lib/vendor
+      - /local/path/to/files/boot:/var/www/boot
+    volumes_from:
+      - web-data
+    ports:
+      - 9000:9000
+    links:
+      - mysql
+      - redis
+  
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - /local/path/to/mysql/data:/var/lib/mysql
+      - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Europe/Helsinki
+    ports:
+      - 3306:3306
+  
+  nginx:
+    image: mvcaaa/nexus-nginx
+    build: 
+      context: ./nexus-nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - php-fpm
+      - ng-serve
+    volumes_from:
+      - web-data
+  
+  redis:
+    image: redis:alpine
+    volumes:
+      - /local/path/to/redis/data:/data

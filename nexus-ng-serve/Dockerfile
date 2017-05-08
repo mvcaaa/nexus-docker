@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-ENV IMAGE_VERSION 0.9.7
+ENV IMAGE_VERSION 1.0
 RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 RUN apk update

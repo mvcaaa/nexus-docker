@@ -1,6 +1,6 @@
 FROM php:7.0-fpm-alpine
 
-ENV IMAGE_VERSION 0.8
+ENV IMAGE_VERSION 1.0
 # Register the COMPOSER_HOME environment variable
 ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
