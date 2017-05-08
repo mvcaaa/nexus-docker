@@ -8,7 +8,9 @@ web-data:
 
 ng-serve:
   image: mvcaaa/nexus-ng-serve
-  build: nexus-ng-serve/
+  build: 
+    context: ./nexus-ng-serve/
+    dockerfile: Dockerfile
   entrypoint: bash
   command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
   volumes:
@@ -21,7 +23,9 @@ ng-serve:
 
 php-fpm:
   image: mvcaaa/nexus-php-fpm
-  build: nexus-php-fpm/
+  build: 
+    context: ./nexus-php-fpm/
+    dockerfile: Dockerfile
   entrypoint: bash
   command: -c "cd /var/www/installations/nexus ; php-fpm"
   volumes:
@@ -49,7 +53,9 @@ mysql:
 
 nginx:
   image: mvcaaa/nexus-nginx
-  build: nexus-nginx/
+  build: 
+    context: ./nexus-nginx/
+    dockerfile: Dockerfile
   ports:
     - 80:80
     - 443:443
