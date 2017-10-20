@@ -30,12 +30,14 @@ services:
 ```
 3. Run `docker-compose pull ; docker-compose up` 
 4. Wait for the message ` ng-serve_1  | webpack: Compiled successfully. `. Ng must compile its crap. It takes ~ 2-10 mins depends computer, moon and stars.
-5. Configure nexus boot parameters any time you want - its shared from docker host to php-fpm container.
+5. On first start containers will build node_modules and vendor folders, it will take some time also. 
+ 
  ```diff
  + TODO: move `nexus-php-fpm/files/boot` from here to nexus repo.
  ```
 NB: Current docker-composer.yml skip mysql and redis containers. Feed dev mysql to tcml config file, put redis to false 
 around boot_nexus.php:207
+NB: Configure nexus boot parameters any time you want - its shared from docker host to php-fpm container.
  
 
 ## Advanced usage (How to break things)
