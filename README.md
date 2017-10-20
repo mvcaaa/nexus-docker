@@ -27,7 +27,7 @@ services:
       environment:
           PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
           XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1" # Change remote_host, port and key if needet
-    ```
+```
 3. Run `docker-compose pull ; docker-compose up` 
 4. Wait for the message ` ng-serve_1  | webpack: Compiled successfully. `. Ng must compile its crap. It takes ~ 2-10 mins depends computer, moon and stars.
 5. Configure nexus boot parameters any time you want - its shared from docker host to php-fpm container.
