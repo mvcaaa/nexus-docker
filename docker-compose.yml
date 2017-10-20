@@ -8,55 +8,49 @@ services:
      volumes:
         - /local/path/to/local/nexus:/var/www/installations/nexus
         - /local/path/to/local/backups:/var/backups
-  
+        - /local/path/to/local/nexus/boot:/var/www/boot
+        - ./nexus-nginx/files/certs:/opt/certs
+        
   ng-serve:
     image: mvcaaa/nexus-ng-serve
-    build: 
+    build:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile
     entrypoint: bash
-    command: -c "cd /var/www/installations/nexus/nexus_ng ; ng serve --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
+    command: -c "cd /var/www/installations/nexus/nexus_ng ; npm install ; ng serve --poll 1000 --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
     volumes:
-      - /var/www/installations/nexus/nexus_ng/node_modules
-      - ./nexus-nginx/files/certs:/opt/certs
+      - /var/www/installations/nexus/nexus_ng/dist
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
     volumes_from:
       - web-data
     ports:
-      - 4200:4200
-  
+      - 4200:4200   # ng serve
+      - 35729:35729 # live reload
+      - 9876:9876   # karma server
+
+
   php-fpm:
     image: mvcaaa/nexus-php-fpm
-    build: 
+    build:
       context: ./nexus-php-fpm/
       dockerfile: Dockerfile
     entrypoint: bash
-    command: -c "cd /var/www/installations/nexus ; php-fpm"
+    command: -c "cd /var/www/installations/nexus/lib ; composer --dev --verbose --optimize-autoloader install ; cd .. ; php-fpm"
     volumes:
-      - /var/www/installations/nexus/lib/vendor
-      - /local/path/to/files/boot:/var/www/boot
+      - php-fpm-vendor:/var/www/installations/nexus/lib/vendor
     volumes_from:
       - web-data
-    ports:
-      - 9000:9000
     links:
-      - mysql
-      - redis
-  
-  mysql:
-    image: mysql:5.7
-    volumes:
-      - /local/path/to/mysql/data:/var/lib/mysql
-      - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
-      - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
+      - ng-serve
+    #   - mysql
+    #   - redis
     environment:
-      - MYSQL_ROOT_PASSWORD=
-      - TZ=Europe/Helsinki
-    ports:
-      - 3306:3306
-  
+        PHP_XDEBUG_ENABLED: 0   # Set 1 to enable.
+        XDEBUG_CONFIG: ""       # must be overriden !!!
+
   nginx:
     image: mvcaaa/nexus-nginx
-    build: 
+    build:
       context: ./nexus-nginx/
       dockerfile: Dockerfile
     ports:
@@ -67,8 +61,26 @@ services:
       - ng-serve
     volumes_from:
       - web-data
+
+  # redis:
+  #   image: redis:alpine
+  #   volumes:
+  #     - /local/path/to/redis/data:/data
+  #   ports:
+  #     - 6379:6379
+
+  # mysql:
+  #   image: mysql:5.7
+  #   volumes:
+  #     - /local/path/to/mysql/data:/var/lib/mysql
+  #     - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
+  #     - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=
+  #     - TZ=Europe/Helsinki
+  #   ports:
+  #     - 3306:3306
   
-  redis:
-    image: redis:alpine
-    volumes:
-      - /local/path/to/redis/data:/data
+volumes:
+  php-fpm-vendor:
+  ng-serve-nodemodules:

@@ -1,6 +1,6 @@
-FROM alpine:3.5
+FROM mhart/alpine-node:8.7
 
-ENV IMAGE_VERSION 1.0
+ENV IMAGE_VERSION 1.7
 RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 RUN apk update
@@ -8,20 +8,6 @@ RUN apk add --no-cache bash tzdata && \
     apk add --no-cache --update nodejs
 RUN cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
 
-WORKDIR /root
-RUN npm install npm@latest &&  \
-    rm -rf /usr/local/lib/node_modules && \
-    mv node_modules /usr/local/lib/
-RUN npm install gulp @angular/cli -g
-
-RUN mkdir -p /var/www/installations/nexus/nexus_ng && \
-    addgroup nexus_ng && \
-    adduser -D -S -h /var/www/installations/nexus/nexus_ng -s /bin/false -G nexus_ng nexus_ng
-ENV HOME=/var/www/installations/nexus/nexus_ng
-COPY files/package.json /var/www/installations/nexus/nexus_ng
-RUN chown nexus_ng:nexus_ng /var/www/installations/nexus/nexus_ng/package.json
-USER nexus_ng
-WORKDIR $HOME
-RUN npm install
+RUN npm install -g gulp @angular/cli
 
 EXPOSE 4200

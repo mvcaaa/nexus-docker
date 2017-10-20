@@ -1,6 +1,6 @@
 FROM php:7.0-fpm-alpine
 
-ENV IMAGE_VERSION 1.0
+ENV IMAGE_VERSION 1.4
 # Register the COMPOSER_HOME environment variable
 ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
@@ -30,15 +30,16 @@ RUN apk add --no-cache --update \
   bash \
   tzdata \
   wget && \
-  apk add --no-cache --update --virtual .build-dependencies alpine-sdk build-base
+  apk add --no-cache --update --virtual .build-dependencies alpine-sdk build-base autoconf
 
 RUN cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
-
-RUN docker-php-ext-install calendar curl gettext bcmath mcrypt mysqli pdo_mysql shmop zip bz2 sockets wddx mbstring opcache pcntl xml xsl && \
-  docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
-  docker-php-ext-install gd && \
-  docker-php-ext-configure ldap --with-libdir=lib/ && \
-  docker-php-ext-install ldap
+RUN docker-php-source extract && \
+  pecl install xdebug && \
+  docker-php-ext-enable xdebug  && \
+  docker-php-source delete && \
+  docker-php-ext-install calendar curl gettext bcmath mcrypt mysqli pdo_mysql shmop zip bz2 sockets wddx mbstring opcache pcntl xml xsl && \
+  docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && docker-php-ext-install gd && \
+  docker-php-ext-configure ldap --with-libdir=lib/ && docker-php-ext-install ldap
 
 # Add enkorascripts user
 RUN addgroup devel && \
@@ -53,8 +54,6 @@ RUN mkdir -p /var/www/installations && \
     mkdir -p /var/www/installations/nexus/lib && \
     rm -rf /var/www/html
 
-COPY files/composer.json files/composer.lock /var/www/installations/nexus/lib/
-
 RUN chown www-data:devel /var/www/installations && \
     chown -R www-data:devel /var/www/boot && \
     chmod g+w /var/www/installations && \
@@ -62,6 +61,7 @@ RUN chown www-data:devel /var/www/installations && \
 
 RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /usr/local/etc/php-fpm.conf
 ADD files/php.ini /usr/local/etc/php
+ADD files/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d
 
 # Memory Limit
 RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini && \
@@ -77,8 +77,4 @@ RUN php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filenam
 
 # Display version information.
 RUN composer --version
-
-WORKDIR /var/www/installations/nexus/lib
-RUN composer --dev --verbose --optimize-autoloader install
-
 RUN apk del .build-dependencies

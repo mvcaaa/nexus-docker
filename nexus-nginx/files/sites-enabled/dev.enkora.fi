@@ -29,6 +29,19 @@ server {
 		deny all;
 	}
 
+    location ^~ /simplesaml {
+            alias /var/www/installations/nexus/lib/simplesamlphp/www/;
+
+            index index.php;
+
+            location ~ ^(?<prefix>/simplesaml)(?<phpfile>.+?\.php)(?<pathinfo>/.*)?$ {
+                    include fastcgi_params;
+                    fastcgi_pass php-fpm:9000;
+                    fastcgi_param SCRIPT_FILENAME $document_root$phpfile;
+                    fastcgi_param PATH_INFO $pathinfo if_not_empty;
+            }
+    }
+
 	# Nexus installations, match /some_thing-path* (e.g. /some_thing-path/jotain/...)
 	location ~* ^/[a-z0-9\_\-]+(/.*)*$ {
 
@@ -50,19 +63,19 @@ server {
 			access_log /var/log/nginx/resources-access.log;
 		}
 
-		location ~* ^/([a-z0-9\_\-]+)/ng\/dist/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2)) {
-			proxy_pass https://ng-serve:4200/$2;
+		location ~* \/ng\/dist/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2|map)) {
+			proxy_pass https://ng-serve:4200/$1;
 			proxy_redirect off;
 			proxy_buffering off;
-            access_log /var/log/nginx/ng-access.log;
+      access_log /var/log/nginx/ng-access.log;
 		}
 
-		location ~* ^/([a-z0-9\_\-]+)/ng/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2)) {
-			proxy_pass https://ng-serve:4200/$2;
+		location ~* \/ng\/(.*\.(js|css|svg|swf|png|gif|jpg|jpeg|ico|eot|ttf|woff|woff2|map)) {
+			proxy_pass https://ng-serve:4200/$1;
 			proxy_redirect off;
 			proxy_buffering off;
-            access_log /var/log/nginx/ng-access.log;
-      }
+      access_log /var/log/nginx/ng-access.log;
+    }
 
 		# Images
 		location ~* ^/([a-z0-9\_\-]+)/resource/(((?!floorplan).*)\.(png|gif|jpg|ico)) {
