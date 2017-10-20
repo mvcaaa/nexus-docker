@@ -13,42 +13,33 @@ Please do not include any secure data or any code in container images !!!
  
 ## Basic usage
 1. Clone repo
-2. Create file `docker-compose.override.yml` with correct paths(it is left part before :, right part will be ok until you change it) and parameters. DO NOT TOUCH `docker-compose.yml` !!!11. Example file:
+2. Create file `docker-compose.override.yml` with correct paths(it is left, right part will be ok until you change it) and parameters. DO NOT TOUCH `docker-compose.yml` !!!11. Example file:
 ```yml
 version: '2'
 services:
   web-data:
     volumes:
-      - E:\Work\nexus:/var/www/installations/nexus
-      - E:\Work\backups:/var/backups
-      - ./nexus-php-fpm/files/boot:/var/www/boot
-    php-fpm:
-     environment:
-		PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
-		XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1"
-  mysql:
-    command: --skip-grant-tables
-    volumes:
-      - E:\Work\mysql-data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=ScheissePasswortEinZweiDrei
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - D:\Work\enkora\boot:/var/www/boot
+      - D:\Work\enkora\backups:/var/backups
   
-  redis:
-    volumes:
-      - E:\Work\enkora\redis-data:/data
-```
-3. Run `docker-compose up` 
+  php-fpm:
+      environment:
+          PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
+          XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1" # Change remote_host, port and key if needet
+    ```
+3. Run `docker-compose pull ; docker-compose up` 
 4. Wait for the message ` ng-serve_1  | webpack: Compiled successfully. `. Ng must compile its crap. It takes ~ 2-10 mins depends computer, moon and stars.
 5. Configure nexus boot parameters any time you want - its shared from docker host to php-fpm container.
  ```diff
  + TODO: move `nexus-php-fpm/files/boot` from here to nexus repo.
  ```
-
-
+NB: Current docker-composer.yml skip mysql and redis containers. Feed dev mysql to tcml config file, put redis to false 
+around boot_nexus.php:207
  
 
 ## Advanced usage (How to break things)
-If you need some changes to container(composer.json or package.json is changed)  - make a new branch, break it, test it locally and fail, commit and push this to GitHub, create Pull Request. 
+If you need some changes to container  - make a new branch, break it, test it locally and fail, commit and push this to GitHub, create Pull Request. 
 Once PR is accepted and branch is merged with master(no) - all images will rebuilt and pushed to DockerHub. 
    
 Please do not push to master branch directly - every push will trigger image rebuild process(~10 min).
