@@ -23,9 +23,9 @@ services:
       - E:\Work\backups:/var/backups
       - ./nexus-php-fpm/files/boot:/var/www/boot
     php-fpm:
-	     environment:
-	         PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
-	         XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1"
+     environment:
+	 PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
+	 XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1"
   mysql:
     command: --skip-grant-tables
     volumes:
