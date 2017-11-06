@@ -1,32 +1,22 @@
-version: '2'
+version: '3.0'
 
 services:
-  web-data:
-     image: busybox:latest
-     entrypoint: /bin/tail
-     command: -f /dev/null
-     volumes:
-        - /local/path/to/local/nexus:/var/www/installations/nexus
-        - /local/path/to/local/backups:/var/backups
-        - /local/path/to/local/nexus/boot:/var/www/boot
-        - ./nexus-nginx/files/certs:/opt/certs
-        
   ng-serve:
-    image: mvcaaa/nexus-ng-serve
+    image: mvcaaa/nexus-ng-serve:1.9.6
     build:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile
     entrypoint: bash
     command: -c "cd /var/www/installations/nexus/nexus_ng ; npm install ; ng serve --poll 1000 --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
     volumes:
-      - /var/www/installations/nexus/nexus_ng/dist
+      - /path/to/local/nexus:/var/www/installations/nexus
       - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
-    volumes_from:
-      - web-data
+      - /path/to/local/certs:/opt/certs
     ports:
       - 4200:4200   # ng serve
       - 35729:35729 # live reload
       - 9876:9876   # karma server
+    restart: on-failure
 
 
   php-fpm:
@@ -37,9 +27,11 @@ services:
     entrypoint: bash
     command: -c "cd /var/www/installations/nexus/lib ; composer --dev --verbose --optimize-autoloader install ; cd .. ; php-fpm"
     volumes:
+      - /path/to/local/boot:/var/www/boot
+      - /path/to/local/nexus:/var/www/installations/nexus
       - php-fpm-vendor:/var/www/installations/nexus/lib/vendor
-    volumes_from:
-      - web-data
+      - /path/to/local/certs:/opt/certs
+
     links:
       - ng-serve
     #   - mysql
@@ -59,8 +51,9 @@ services:
     links:
       - php-fpm
       - ng-serve
-    volumes_from:
-      - web-data
+    volumes:
+      - /path/to/local/nexus:/var/www/installations/nexus
+      - /path/to/local/certs:/opt/certs
 
   # redis:
   #   image: redis:alpine
@@ -80,7 +73,7 @@ services:
   #     - TZ=Europe/Helsinki
   #   ports:
   #     - 3306:3306
-  
+
 volumes:
   php-fpm-vendor:
   ng-serve-nodemodules:
