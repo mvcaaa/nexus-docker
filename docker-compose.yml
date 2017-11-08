@@ -2,12 +2,12 @@ version: '3.0'
 
 services:
   ng-serve:
-    image: mvcaaa/nexus-ng-serve:1.9.6
-    build:
-      context: ./nexus-ng-serve/
-      dockerfile: Dockerfile
-    entrypoint: bash
-    command: -c "cd /var/www/installations/nexus/nexus_ng ; npm install ; ng serve --poll 1000 --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key --ssl-cert /opt/certs/certs/dev.local.crt"
+    image: node:6.11-alpine
+    entrypoint: /bin/sh
+    command: > 
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --poll 1000  
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key   
+      --ssl-cert /opt/certs/certs/dev.local.crt"
     volumes:
       - /path/to/local/nexus:/var/www/installations/nexus
       - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
@@ -17,7 +17,10 @@ services:
       - 35729:35729 # live reload
       - 9876:9876   # karma server
     restart: on-failure
-
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
   php-fpm:
     image: mvcaaa/nexus-php-fpm
