@@ -2,10 +2,13 @@ version: '3.0'
 
 services:
   ng-serve:
-    image: node:6.11-alpine
+    image: mvcaaa/nexus-ng-serve:1.9.8
+    build:
+      context: ./nexus-ng-serve/
+      dockerfile: Dockerfile
     entrypoint: /bin/sh
     command: > 
-      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --poll 1000  
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000  
       --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key   
       --ssl-cert /opt/certs/certs/dev.local.crt"
     volumes:
