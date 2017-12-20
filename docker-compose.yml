@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   ng-serve:
-    image: mvcaaa/nexus-ng-serve:1.9.8
+    image: mvcaaa/nexus-ng-serve:1.9.11
     build:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile
@@ -40,6 +40,9 @@ services:
 
     links:
       - ng-serve
+    depends_on:
+      - ng-serve
+
     #   - mysql
     #   - redis
     environment:
@@ -60,6 +63,9 @@ services:
     volumes:
       - /path/to/local/nexus:/var/www/installations/nexus
       - /path/to/local/certs:/opt/certs
+    depends_on:
+      - php-fpm
+      - ng-serve
 
   # redis:
   #   image: redis:alpine
