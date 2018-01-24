@@ -19,10 +19,10 @@ RUN apk update && \
 		wget
 
 # npm replaced here by yarn - too buggy
-RUN yarn global add npm@5
-RUN npm --version
-RUN yarn global add gulp @angular/cli@1.6.0
-RUN ng --version
+RUN yarn global add npm@5 && \
+	npm --version
+RUN yarn global add gulp @angular/cli@^1.6.0 && \
+	ng --version
 RUN apk del native-deps
 RUN apk --no-cache add bash tzdata && \
 	cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
