@@ -7,9 +7,9 @@ services:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile
     entrypoint: /bin/sh
-    command: > 
-      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000  
-      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key   
+    command: >
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key
       --ssl-cert /opt/certs/certs/dev.local.crt"
     volumes:
       - /path/to/local/nexus:/var/www/installations/nexus
@@ -42,8 +42,7 @@ services:
       - ng-serve
     depends_on:
       - ng-serve
-
-    #   - mysql
+      - mysql
     #   - redis
     environment:
         PHP_XDEBUG_ENABLED: 0   # Set 1 to enable.
@@ -74,17 +73,17 @@ services:
   #   ports:
   #     - 6379:6379
 
-  # mysql:
-  #   image: mysql:5.7
+  mysql:
+    image: mysql:5.7
   #   volumes:
   #     - /local/path/to/mysql/data:/var/lib/mysql
   #     - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
   #     - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=
-  #     - TZ=Europe/Helsinki
-  #   ports:
-  #     - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Europe/Helsinki
+    ports:
+      - 3306:3306
 
 volumes:
   php-fpm-vendor:

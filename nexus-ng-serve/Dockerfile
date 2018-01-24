@@ -1,28 +1,30 @@
 FROM node:8.9-alpine
 
-ENV IMAGE_VERSION 1.9.12
-#RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
+ENV IMAGE_VERSION 1.9.13
+# Not working in Windows host containers
+# RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 RUN apk update && \
-  apk --no-cache add --virtual \ 
-      native-deps  \ 
-      g++ \
-      gcc \ 
-      libgcc \ 
-      libstdc++ \
-      linux-headers \
-      make \
-      python \ 
-      bash \ 
-      ca-certificates \
-      wget 
-      
+	apk --no-cache add --virtual \
+		native-deps  \
+		g++ \
+		gcc \
+		libgcc \
+		libstdc++ \
+		linux-headers \
+		make \
+		python \
+		bash \
+		ca-certificates \
+		wget
+
+# npm replaced here by yarn - too buggy
 RUN yarn global add npm@5
 RUN npm --version
 RUN yarn global add gulp @angular/cli@1.6.0
 RUN ng --version
 RUN apk del native-deps
-RUN apk --no-cache add bash tzdata && \ 
+RUN apk --no-cache add bash tzdata && \
 	cp /usr/share/zoneinfo/Europe/Helsinki /etc/localtime
 
 EXPOSE 4200
