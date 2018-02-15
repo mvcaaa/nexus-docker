@@ -1,6 +1,6 @@
 FROM php:7.0-fpm-alpine
 
-ENV IMAGE_VERSION 1.4
+ENV IMAGE_VERSION 1.5
 # Register the COMPOSER_HOME environment variable
 ENV COMPOSER_HOME /var/www/installations/nexus/lib
 ENV COMPOSER_VERSION 1.2.0
@@ -41,6 +41,10 @@ RUN docker-php-source extract && \
   docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && docker-php-ext-install gd && \
   docker-php-ext-configure ldap --with-libdir=lib/ && docker-php-ext-install ldap
 
+# Build/add REDIS
+RUN pecl install redis \ 
+	 && docker-php-ext-enable redis 
+	     
 # Add enkorascripts user
 RUN addgroup devel && \
     addgroup enkorascripts && \
@@ -62,6 +66,7 @@ RUN chown www-data:devel /var/www/installations && \
 RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /usr/local/etc/php-fpm.conf
 ADD files/php.ini /usr/local/etc/php
 ADD files/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d
+ADD files/docker-php-ext-redis.ini /usr/local/etc/php/conf.d
 
 # Memory Limit
 RUN echo "memory_limit=-1" > $PHP_INI_DIR/conf.d/memory-limit.ini && \

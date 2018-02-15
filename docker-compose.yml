@@ -26,7 +26,7 @@ services:
           memory: 2G
 
   php-fpm:
-    image: mvcaaa/nexus-php-fpm
+    image: mvcaaa/nexus-php-fpm:1.5
     build:
       context: ./nexus-php-fpm/
       dockerfile: Dockerfile
@@ -66,12 +66,12 @@ services:
       - php-fpm
       - ng-serve
 
-  # redis:
-  #   image: redis:alpine
-  #   volumes:
-  #     - /local/path/to/redis/data:/data
-  #   ports:
-  #     - 6379:6379
+  redis:
+   image: redis:alpine
+   volumes:
+     - /local/path/to/redis/data:/data
+   ports:
+     - 6379:6379
 
   mysql:
     image: mysql:5.7
