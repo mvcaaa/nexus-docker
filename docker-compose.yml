@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   ng-serve:
-    image: mvcaaa/nexus-ng-serve:1.9.11
+    image: mvcaaa/nexus-ng-serve:1.9.14
     build:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile

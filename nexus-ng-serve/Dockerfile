@@ -1,6 +1,6 @@
 FROM node:8.9-alpine
 
-ENV IMAGE_VERSION 1.9.13
+ENV IMAGE_VERSION 1.9.14
 # Not working in Windows host containers
 # RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
@@ -21,7 +21,7 @@ RUN apk update && \
 # npm replaced here by yarn - too buggy
 RUN yarn global add npm@5 && \
 	npm --version
-RUN yarn global add gulp @angular/cli@^1.6.0 && \
+RUN yarn global add gulp @angular/cli@^1.7.3 && \
 	ng --version
 RUN apk del native-deps
 RUN apk --no-cache add bash tzdata && \
