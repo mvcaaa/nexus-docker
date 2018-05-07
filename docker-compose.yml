@@ -14,12 +14,15 @@ services:
     volumes:
       - /path/to/local/nexus:/var/www/installations/nexus
       - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+      - ng-build-dist:/var/www/installations/nexus/nexus_ng/dist
       - /path/to/local/certs:/opt/certs
     ports:
       - 4200:4200   # ng serve
       - 35729:35729 # live reload
       - 9876:9876   # karma server
     restart: on-failure
+    environment:
+      - NODE_MAX_MEM=1024
     deploy:
       resources:
         limits:
@@ -78,6 +81,7 @@ services:
   mysql:
     image: mysql:5.7
   #   volumes:
+  #     -  D:\Work\enkora\nexus-docker\mysql\files\my.cnf:/etc/mysql/conf.d/my.cnf
   #     - /local/path/to/mysql/data:/var/lib/mysql
   #     - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
   #     - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
@@ -90,3 +94,4 @@ services:
 volumes:
   php-fpm-vendor:
   ng-serve-nodemodules:
+  ng-build-dist:
