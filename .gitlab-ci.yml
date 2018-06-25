@@ -15,12 +15,11 @@ before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $REGISTRY
 
 stages:
-- build_ng_serve
-- build_nginx_php_fpm
+- build
 - publish
 
 build_ng_serve:
-  stage: build_ng_serve
+  stage: build
   only:
     - branches
   script:
@@ -28,16 +27,19 @@ build_ng_serve:
     - docker run $PROJECT_GROUP/nexus-ng-serve npm --version
 
 build_nginx_php_fpm:
-  stage: build_nginx_php_fpm
+  stage: build
   only:
     - branches
   script:
     - docker build -t $PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION nexus-nginx-php-fpm/
     - docker run $PROJECT_GROUP/nexus-nginx-php-fpm npm --version
 
-publish-image:
+publish_ng_serve:
   stage: publish
   script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $REGISTRY
     - docker push $REGISTRY/$PROJECT_GROUP/nexus-ng-serve:$PACK_VERSION
+
+publish_ng_serve:
+  stage: publish
+  script:
     - docker push $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION
