@@ -22,15 +22,15 @@ build_ng_serve:
   only:
     - branches
   script:
-    - docker build -t $REGISTRY/$PROJECT_GROUP/nexus-ng-serve:${CI_COMMIT_SHA:0:8} nexus-ng-serve/
-    - docker run $REGISTRY/$PROJECT_GROUP/nexus-ng-serve:${CI_COMMIT_SHA:0:8} npm --version
-    - docker push $REGISTRY/$PROJECT_GROUP/nexus-ng-serve
+    - docker build -t $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-ng-serve:${CI_COMMIT_SHA:0:8} nexus-ng-serve/
+    - docker run $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-ng-serve:${CI_COMMIT_SHA:0:8} npm --version
+    - docker push $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-ng-serve
 
 build_nginx_php_fpm:
   stage: build
   only:
     - branches
   script:
-    - docker build -t $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm:${CI_COMMIT_SHA:0:8} nexus-nginx-php-fpm/
-    - docker run --entrypoint "composer" $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm:${CI_COMMIT_SHA:0:8} --version
-    - docker push $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm
+    - docker build -t $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-nginx-php-fpm:${CI_COMMIT_SHA:0:8} nexus-nginx-php-fpm/
+    - docker run --entrypoint "composer" $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-nginx-php-fpm:${CI_COMMIT_SHA:0:8} --version
+    - docker push $REGISTRY/$PROJECT_GROUP/$PROJECT_NAME/nexus-nginx-php-fpm
