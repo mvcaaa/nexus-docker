@@ -16,7 +16,7 @@ before_script:
 
 stages:
 - build_ng_serve
-- build-nexus-nginx-php-fpm
+- build_nginx_php_fpm
 - publish
 
 build_ng_serve:
@@ -24,15 +24,15 @@ build_ng_serve:
   only:
     - branches
   script:
-    - docker build -t $PROJECT_GROUP/nexus-ng-serve nexus-ng-serve/
+    - docker build -t $PROJECT_GROUP/nexus-ng-serve::$PACK_VERSION nexus-ng-serve/
     - docker run $PROJECT_GROUP/nexus-ng-serve npm --version
 
-build_ng_serve:
+build_nginx_php_fpm:
   stage: build_nginx_php_fpm
   only:
     - branches
   script:
-    - docker build -t $PROJECT_GROUP/nexus-nginx-php-fpm nexus-nginx-php-fpm/
+    - docker build -t $PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION nexus-nginx-php-fpm/
     - docker run $PROJECT_GROUP/nexus-nginx-php-fpm npm --version
 
 publish-image:
