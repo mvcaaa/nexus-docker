@@ -1,0 +1,102 @@
+version: '3.6'
+
+services:
+  ng-serve:
+    image: mvcaaa/nexus-ng-serve:1.9.14
+    build:
+      context: ./nexus-ng-serve/
+      dockerfile: Dockerfile
+    entrypoint: /bin/sh
+    command: >
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key
+      --ssl-cert /opt/certs/certs/dev.local.crt"
+    volumes:
+      - /path/to/local/nexus:/var/www/installations/nexus
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+      - ng-build-dist:/var/www/installations/nexus/nexus_ng/dist
+      - /path/to/local/certs:/opt/certs
+    ports:
+      - 4200:4200   # ng serve
+      - 35729:35729 # live reload
+      - 9876:9876   # karma server
+    restart: on-failure
+    environment:
+      - NODE_MAX_MEM=1024
+
+  php-fpm:
+    image: mvcaaa/nexus-php-fpm:2.3
+    build:
+      context: ./nexus-php-fpm/
+      dockerfile: Dockerfile
+    entrypoint: bash
+    command: -c "cd /var/www/installations/nexus/lib ; composer --dev --verbose --optimize-autoloader install ; cd .. ; php-fpm"
+    volumes:
+      - /path/to/local/boot:/var/www/boot
+      - /path/to/local/nexus:/var/www/installations/nexus
+      - php-fpm-vendor:/var/www/installations/nexus/lib/vendor
+      - /path/to/local/certs:/opt/certs
+    links:
+      - ng-serve
+      - mysql
+    depends_on:
+      - ng-serve
+      - mysql
+    #   - redis
+    environment:
+        PHP_XDEBUG_ENABLED: 0   # Set 1 to enable.
+        XDEBUG_CONFIG: ""       # must be overriden !!!
+
+  nginx:
+    image: mvcaaa/nexus-nginx:1.7
+    build:
+      context: ./nexus-nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - php-fpm
+      - ng-serve
+    volumes:
+      - /path/to/local/nexus:/var/www/installations/nexus
+#      - /path/to/local/certs:/opt/certs
+    depends_on:
+      - php-fpm
+      - ng-serve
+
+  redis:
+   image: redis:alpine
+   volumes:
+     - /local/path/to/redis/data:/data
+   environment:
+      REDISCLI_HISTFILE: /data/.rediscli_history
+   ports:
+     - 6379:6379
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Europe/Helsinki
+    ports:
+      - 3306:3306
+
+  robo:
+    image: mvcaaa/nexus-php-robo
+    build:
+      context: ./nexus-php-robo/
+      dockerfile: Dockerfile
+    links:
+      - ng-serve
+      - mysql
+      - php-fpm
+    volumes:
+      - /path/to/local/nexus:/var/www/installations/nexus
+    working_dir: "/var/www/installations/nexus"
+    entrypoint: /var/www/installations/nexus/robo
+
+volumes:
+  php-fpm-vendor:
+  ng-serve-nodemodules:
+  ng-build-dist:

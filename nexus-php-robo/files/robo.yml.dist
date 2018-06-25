@@ -1,0 +1,19 @@
+command:
+  phpunit:
+    options:
+      configFileName: "phpunit"
+  phinx:
+    options:
+      configuration: "phinx.php"
+      environment: "local"
+    rollback-to-begin:
+      options:
+        target: "0"
+  nexusdb:
+    options:
+      source: "mysql://{user}}:{passwd}@{host}/{db_name}"
+      target: "mysql://{user}}:{passwd}@{host}/{db_name}"
+                    
+global:
+    nexusBaseDir: "/var/www/nexus"
+    phpInterpretor: "/usr/bin/php"

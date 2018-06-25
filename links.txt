@@ -1,0 +1,1 @@
+https://medium.com/travis-on-docker/how-to-version-your-docker-images-1d5c577ebf54

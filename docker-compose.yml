@@ -1,6 +1,60 @@
-version: '3.0'
+version: '3.6'
 
 services:
+  nginx-php-fpm:
+    image: "mvcaaa/nexus-nginx-php-fpm"
+    build:
+      context: ./nexus-nginx-php-fpm/
+      dockerfile: Dockerfile
+    volumes:
+      - ${NEXUS_HOME}:/var/www/installations/nexus
+      - ${NEXUS_BOOT}:/var/www/boot
+      - ${NEXUS_DOCKER_HOME}\files\nginx\certs:/opt/certs
+      - ${NEXUS_DOCKER_HOME}\files\nginx-php-fpm-start.sh:/start.sh
+      - ${NEXUS_DOCKER_HOME}\files\nginx:/etc/nginx
+      # This is caches/composer vendor folder
+      - php-vendor:/var/www/installations/nexus/lib/vendor
+      - php-vendor-cache:/root/.composer
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+    environment:
+        ENABLE_XDEBUG: ${IS_XDEBUG_ENABLED}
+        PHP_XDEBUG_ENABLED: ${IS_XDEBUG_ENABLED}
+        XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+        # WEBROOT: "/var/www/installations/nexus"
+        APPLICATION_ENV: ${APPLICATION_ENV}
+        COMPOSER_WORKING_DIR: /var/www/installations/nexus/lib
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - redis
+      - mysql
+      - ng-serve
+    depends_on:
+      - redis
+      - mysql
+
+  redis:
+    image: redis:alpine
+    environment:
+        REDISCLI_HISTFILE: /data/.rediscli_history
+    ports:
+       - 6379:6379
+    volumes:
+      - ${REDIS_DATA_DIR}:/data
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Europe/Helsinki
+    ports:
+      - 3306:3306
+    command: --skip-grant-tables
+    volumes:
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql
+      - ${NEXUS_DOCKER_HOME}\files\mysql\my.cnf:/etc/mysql/conf.d/my.cnf
+
   ng-serve:
     image: mvcaaa/nexus-ng-serve:1.9.14
     build:
@@ -9,89 +63,22 @@ services:
     entrypoint: /bin/sh
     command: >
       -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000
-      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/dev.local.key
-      --ssl-cert /opt/certs/certs/dev.local.crt"
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/master.key
+      --ssl-cert /opt/certs/master.pem"
     volumes:
-      - /path/to/local/nexus:/var/www/installations/nexus
+      - ${NEXUS_HOME}:/var/www/installations/nexus
       - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
       - ng-build-dist:/var/www/installations/nexus/nexus_ng/dist
-      - /path/to/local/certs:/opt/certs
+      - ${NEXUS_DOCKER_HOME}\files\nginx\certs:/opt/certs
     ports:
       - 4200:4200   # ng serve
       - 35729:35729 # live reload
       - 9876:9876   # karma server
-    restart: on-failure
     environment:
       - NODE_MAX_MEM=1024
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-
-  php-fpm:
-    image: mvcaaa/nexus-php-fpm:1.5
-    build:
-      context: ./nexus-php-fpm/
-      dockerfile: Dockerfile
-    entrypoint: bash
-    command: -c "cd /var/www/installations/nexus/lib ; composer --dev --verbose --optimize-autoloader install ; cd .. ; php-fpm"
-    volumes:
-      - /path/to/local/boot:/var/www/boot
-      - /path/to/local/nexus:/var/www/installations/nexus
-      - php-fpm-vendor:/var/www/installations/nexus/lib/vendor
-      - /path/to/local/certs:/opt/certs
-
-    links:
-      - ng-serve
-    depends_on:
-      - ng-serve
-      - mysql
-    #   - redis
-    environment:
-        PHP_XDEBUG_ENABLED: 0   # Set 1 to enable.
-        XDEBUG_CONFIG: ""       # must be overriden !!!
-
-  nginx:
-    image: mvcaaa/nexus-nginx
-    build:
-      context: ./nexus-nginx/
-      dockerfile: Dockerfile
-    ports:
-      - 80:80
-      - 443:443
-    links:
-      - php-fpm
-      - ng-serve
-    volumes:
-      - /path/to/local/nexus:/var/www/installations/nexus
-      - /path/to/local/certs:/opt/certs
-    depends_on:
-      - php-fpm
-      - ng-serve
-
-  redis:
-   image: redis:alpine
-   volumes:
-     - /local/path/to/redis/data:/data
-   environment:
-      REDISCLI_HISTFILE: /data/.rediscli_history
-   ports:
-     - 6379:6379
-
-  mysql:
-    image: mysql:5.7
-  #   volumes:
-  #     -  D:\Work\enkora\nexus-docker\mysql\files\my.cnf:/etc/mysql/conf.d/my.cnf
-  #     - /local/path/to/mysql/data:/var/lib/mysql
-  #     - ./mysql/files/config/my.cnf:/etc/mysql/conf.d/my.cnf
-  #     - ./mysql/files/config/mysqld_charset.cnf:/etc/mysql/conf.d/mysqld_charset.cnf
-    environment:
-      - MYSQL_ROOT_PASSWORD=
-      - TZ=Europe/Helsinki
-    ports:
-      - 3306:3306
 
 volumes:
-  php-fpm-vendor:
+  php-vendor:
+  php-vendor-cache:
   ng-serve-nodemodules:
   ng-build-dist:

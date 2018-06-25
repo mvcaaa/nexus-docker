@@ -5,12 +5,10 @@ language: bash
 script:
 # build image
 - docker build -t mvcaaa/nexus-ng-serve nexus-ng-serve/
-- docker build -t mvcaaa/nexus-php-fpm nexus-php-fpm/
-- docker build -t mvcaaa/nexus-nginx nexus-nginx/
+- docker build -t mvcaaa/nexus-nginx-php-fpm nexus-nginx-php-fpm/
 # test image
 - docker run mvcaaa/nexus-ng-serve npm --version
-- docker run mvcaaa/nexus-php-fpm composer --version
-- docker run mvcaaa/nexus-nginx nginx -v
+- docker run --entrypoint "composer" mvcaaa/nexus-nginx-php-fpm --version
 # push image
 - >
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -19,13 +17,9 @@ script:
     docker tag mvcaaa/nexus-ng-serve mvcaaa/nexus-ng-serve:$TAG1
     docker push mvcaaa/nexus-ng-serve:$TAG1
     docker push mvcaaa/nexus-ng-serve
-    TAG2=$(grep "ENV IMAGE_VERSION" Dockerfile.php-fpm | awk 'NF>1{print $NF}')
-    docker tag mvcaaa/nexus-php-fpm mvcaaa/nexus-php-fpm:$TAG2
-    docker push mvcaaa/nexus-php-fpm:$TAG2
-    docker push mvcaaa/nexus-php-fpm
-    TAG3=$(grep "ENV IMAGE_VERSION" Dockerfile.nginx | awk 'NF>1{print $NF}')
-    docker tag mvcaaa/nexus-nginx mvcaaa/nexus-nginx:$TAG3
-    docker push mvcaaa/nexus-nginx:$TAG3
-    docker push mvcaaa/nexus-nginx
+    TAG2=$(grep "ENV IMAGE_VERSION" Dockerfile.nginx-php-fpm | awk 'NF>1{print $NF}')
+    docker tag mvcaaa/nexus-nginx-php-fpm mvcaaa/nexus-nginx-php-fpm:$TAG2
+    docker push mvcaaa/nexus-nginx-php-fpm:$TAG2
+    docker push mvcaaa/nexus-nginx-php-fpm
   fi
 # end

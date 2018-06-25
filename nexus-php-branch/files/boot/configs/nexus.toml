@@ -1,0 +1,3 @@
+title = "nexus dev docker"
+environment = "dev"
+installation_code = "base" 

@@ -1,0 +1,48 @@
+version: '3.6'
+
+services:
+  php-fpm:
+    environment:
+        PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
+        XDEBUG_CONFIG: "remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1"
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - php-fpm-vendor:/var/www/installations/nexus/lib/vendor
+      - D:\Work\enkora\boot:/var/www/boot
+      - D:\Work\enkora\docker\nexus-docker\nexus-nginx\files\certs:/opt/certs
+
+  ng-serve:
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+      - D:\Work\enkora\docker\nexus-docker\nexus-nginx\files\certs:/opt/certs
+
+  nginx:
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+#      - D:\Work\enkora\nexus-docker\nexus-nginx\files\certs:/opt/certs
+#      - D:\Work\enkora\nexus-docker\nexus-nginx\files\certs:/etc/nginx/certs/
+#      - D:\Work\enkora\nexus-docker\nexus-nginx\files\sites-enabled:/etc/nginx/sites-enabled/
+
+
+  mysql:
+    command: --skip-grant-tables
+    volumes:
+      - D:\mysql_data:/var/lib/mysql
+      - D:\Work\enkora\docker\nexus-docker\mysql\config\my.cnf:/etc/mysql/conf.d/my.cnf
+
+  redis:
+    volumes:
+      - D:\Work\enkora\redis-data:/data
+
+  robo:
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - D:\Work\enkora\docker\nexus-docker\nexus-php-robo\files\robo.yml:/var/www/installations/nexus/robo.yml
+      - D:\Work\enkora\docker\nexus-docker\nexus-php-robo\files\robo:/var/www/installations/nexus/robo
+      - D:\Work\enkora\docker\nexus-docker\nexus-php-robo\files\RoboFile.php:/var/www/installations/nexus/RoboFile.php
+
+volumes:
+  php-fpm-vendor:
+  ng-serve-nodemodules:
+  ng-build-dist:

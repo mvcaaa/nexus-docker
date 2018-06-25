@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-ENV IMAGE_VERSION 1.6
+ENV IMAGE_VERSION 1.7
 
 # Install nginx package and remove cache
 RUN apk add --update --no-cache nginx bash wget tzdata

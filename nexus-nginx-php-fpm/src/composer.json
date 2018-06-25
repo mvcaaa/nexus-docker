@@ -1,0 +1,61 @@
+{
+	"repositories": [
+		{
+			"type": "git",
+			"url" : "https://github.com/Enkora/IsoCodes"
+		}
+	],
+
+	"require"    : {
+		"php"                                : ">5.4",
+		"ircmaxell/password-compat"          : "~1.0.3",
+		"leafo/lessphp"                      : "~0.5.0",
+		"coffeescript/coffeescript"          : "dev-master#0dd272746cb16a420dfba8073e54312b0a7ccb1b",
+		"vlucas/valitron"                    : "dev-master#13d4374de56e417e35cf3ac7a3924baf74bd424d",
+		"rackspace/php-opencloud"            : "~1.16.0",
+		"twig/twig"                          : "~1.20.0",
+		"phpoffice/phpexcel"                 : "~1.8.1",
+		"zendframework/zendframework1"       : "~1.12.16",
+		"colinmollenhour/credis"             : "~1.5.0",
+		"colinmollenhour/cache-backend-redis": "~1.8.1",
+		"google/apiclient"                   : "~1.1.6",
+		"aws/aws-sdk-php"                    : "~3.14.1",
+		"robmorgan/phinx"                    : "~0.8.1",
+		"mpdf/mpdf"                          : "~6.1.3",
+		"phpseclib/phpseclib"                : "~2.0.4",
+		"fergusean/nusoap"                   : "~0.9.5",
+		"iignatov/lightopenid"               : "~1.0.0",
+		"solinor/paymenthighwayio"           : "~1.2.1",
+		"phpseclib/mcrypt_compat"            : "~1.0.2",
+		"ezyang/htmlpurifier"                : "~4.9.3",
+		"aidantwoods/secureheaders"          : "~2.0",
+		"voku/anti-xss"                      : "~2.1.7",
+		"consolidation/robo"                 : "~1.1.2",
+		"ad7six/dsn"                         : "~0.4",
+		"phpdocumentor/reflection-docblock"  : "~3.2.2",
+		"ronanguilloux/isocodes"             : "~2.1.6",
+		"guzzlehttp/guzzle"                  : "~6.0",
+		"cloudinary/cloudinary_php"          : "dev-master",
+		"league/html-to-markdown"            : "~4.6.0",
+		"erusev/parsedown"                   : "~1.7.1"
+	},
+	"require-dev": {
+		"roave/security-advisories"  : "dev-master",
+		"squizlabs/php_codesniffer"  : "~2.8.1",
+		"phpmd/phpmd"                : "~2.6.0",
+		"phpunit/phpunit"            : "~4.8",
+		"phpunit/phpunit-selenium"   : "~1.4.2",
+		"phpunit/php-code-coverage"  : "~2.2.4",
+		"phpunit/php-text-template"  : "~1.2.1",
+		"sensiolabs/security-checker": "~4.1.4",
+		"tacnoman/dephpugger"        : "^1.1",
+		"symfony/intl"               : "v3.4.8"
+	},
+	"extra": {
+		"magento-root-dir": "root",
+		"magento-force"   : true
+	},
+	"autoload"   : {
+		"classmap": ["vendor/colinmollenhour/cache-backend-redis/Cm/Cache/Backend/Redis.php"]
+	}
+}

@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/lib/vendor/autoload.php';
+
+$runner = new \Robo\Runner();
+$statusCode = $runner->execute($_SERVER['argv']);
+exit($statusCode);

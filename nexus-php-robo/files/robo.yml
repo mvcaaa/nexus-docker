@@ -1,0 +1,38 @@
+command:
+  phpunit:
+    options:
+      configFileName: "phpunitMvc"
+  phinx:
+    options:
+      configuration: "phinx.php"
+      environment:
+#        - "base.mvc"
+         - "local.mvc"
+      target: "nexus_test"
+    rollback-to-begin:
+      options:
+        target: "0"
+    status:
+      options:
+        environment:
+         - "docker"
+    dev-status:
+      options:
+        environment: "dev"
+        targets:
+          - "nexus"
+          - "nexus_base"
+    dev-update:
+      options:
+        environment: "dev"
+        targets:
+          - "nexus"
+          - "nexus_base"
+  nexusdb:
+    options:
+      source: "mysql://www:rofl-tosc-zekp-cexl-leyn-dokr@dev/nexus_base"
+      target: "mysql://root:SuperVGA256@mvc.local/nexus_base"
+
+global:
+    nexusBaseDir: "/var/www/installations/nexus/"
+    phpInterpretor: "/usr/local/bin/php"
