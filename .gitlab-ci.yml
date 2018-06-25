@@ -23,7 +23,7 @@ build_ng_serve:
   only:
     - branches
   script:
-    - docker build -t $PROJECT_GROUP/nexus-ng-serve::$PACK_VERSION nexus-ng-serve/
+    - docker build -t $PROJECT_GROUP/nexus-ng-serve:${CI_COMMIT_SHA:0:8} nexus-ng-serve/
     - docker run $PROJECT_GROUP/nexus-ng-serve npm --version
 
 build_nginx_php_fpm:
@@ -31,15 +31,15 @@ build_nginx_php_fpm:
   only:
     - branches
   script:
-    - docker build -t $PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION nexus-nginx-php-fpm/
+    - docker build -t $PROJECT_GROUP/nexus-nginx-php-fpm:${CI_COMMIT_SHA:0:8} nexus-nginx-php-fpm/
     - docker run $PROJECT_GROUP/nexus-nginx-php-fpm npm --version
 
 publish_ng_serve:
   stage: publish
   script:
-    - docker push $REGISTRY/$PROJECT_GROUP/nexus-ng-serve:$PACK_VERSION
+    - docker push $REGISTRY/$PROJECT_GROUP/nexus-ng-serve
 
 publish_nginx_php_fpm:
   stage: publish
   script:
-    - docker push $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION
+    - docker push $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm
