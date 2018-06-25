@@ -39,7 +39,7 @@ publish_ng_serve:
   script:
     - docker push $REGISTRY/$PROJECT_GROUP/nexus-ng-serve:$PACK_VERSION
 
-publish_ng_serve:
+publish_nginx_php_fpm:
   stage: publish
   script:
     - docker push $REGISTRY/$PROJECT_GROUP/nexus-nginx-php-fpm:$PACK_VERSION
