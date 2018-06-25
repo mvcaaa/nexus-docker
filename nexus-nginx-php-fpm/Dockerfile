@@ -158,7 +158,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   # RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
   #   echo /etc/apk/respositories && \
   #   apk update
-    
+
   RUN apk add --no-cache bash \
       openssh-client \
       wget \
@@ -190,7 +190,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
       gettext-dev \
       libbz2 \
       bzip2-dev \
-      openldap-dev \
       curl-dev \
       zlib-dev \
       libmemcached-dev \
@@ -200,7 +199,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     # docker-php-ext-enable xdebug && \
     docker-php-ext-install calendar curl dom gettext bcmath exif iconv intl json mcrypt mysqli pdo_mysql soap shmop zip bz2 sockets wddx mbstring opcache pcntl xml xsl && \
     docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && docker-php-ext-install gd && \
-    docker-php-ext-configure ldap --with-libdir=lib/ && docker-php-ext-install ldap && \
     pecl install redis && \
     docker-php-ext-enable redis && \
     pecl install memcached && \
