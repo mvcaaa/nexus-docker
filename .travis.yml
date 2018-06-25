@@ -2,24 +2,33 @@ sudo: required
 services:
 - docker
 language: bash
-script:
-# build image
-- docker build -t mvcaaa/nexus-ng-serve nexus-ng-serve/
-- docker build -t mvcaaa/nexus-nginx-php-fpm nexus-nginx-php-fpm/
-# test image
-- docker run mvcaaa/nexus-ng-serve npm --version
-- docker run --entrypoint "composer" mvcaaa/nexus-nginx-php-fpm --version
-# push image
-- >
-  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
-    TAG1=$(grep "ENV IMAGE_VERSION" Dockerfile.ng-serve | awk 'NF>1{print $NF}')
-    docker tag mvcaaa/nexus-ng-serve mvcaaa/nexus-ng-serve:$TAG1
-    docker push mvcaaa/nexus-ng-serve:$TAG1
-    docker push mvcaaa/nexus-ng-serve
-    TAG2=$(grep "ENV IMAGE_VERSION" Dockerfile.nginx-php-fpm | awk 'NF>1{print $NF}')
-    docker tag mvcaaa/nexus-nginx-php-fpm mvcaaa/nexus-nginx-php-fpm:$TAG2
-    docker push mvcaaa/nexus-nginx-php-fpm:$TAG2
-    docker push mvcaaa/nexus-nginx-php-fpm
-  fi
-# end
+stages:
+  - build-nexus-ng-serve
+  - build-nexus-nginx-php-fpm
+  - push-images
+jobs:
+  include:
+    - stage: build-nexus-ng-serve
+      script:
+        # build ng-serve image
+        - docker build -t mvcaaa/nexus-ng-serve nexus-ng-serve/
+        - docker run mvcaaa/nexus-ng-serve npm --version
+    - stage: build-nexus-nginx-php-fpm
+      script:
+        # build nginx-php-fpm image
+        - docker build -t mvcaaa/nexus-nginx-php-fpm nexus-nginx-php-fpm/
+        - docker run --entrypoint "composer" mvcaaa/nexus-nginx-php-fpm --version
+    - stage: push-images
+      script:
+        - >
+          if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+            TAG1=$(grep "ENV IMAGE_VERSION" nexus-ng-serve/Dockerfile | awk 'NF>1{print $NF}')
+            docker tag mvcaaa/nexus-ng-serve mvcaaa/nexus-ng-serve:$TAG1
+            docker push mvcaaa/nexus-ng-serve:$TAG1
+            docker push mvcaaa/nexus-ng-serve
+            TAG2=$(grep "ENV IMAGE_VERSION" nexus-nginx-php-fpm/Dockerfile | awk 'NF>1{print $NF}')
+            docker tag mvcaaa/nexus-nginx-php-fpm mvcaaa/nexus-nginx-php-fpm:$TAG2
+            docker push mvcaaa/nexus-nginx-php-fpm:$TAG2
+            docker push mvcaaa/nexus-nginx-php-fpm
+          fi
