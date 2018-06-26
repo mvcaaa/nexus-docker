@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   nginx-php-fpm:
-    image: "mvcaaa/nexus-nginx-php-fpm"
+    image: "registry.gitlab.com/mvcaaa/nexus-docker/nginx-php-fpm"
     build:
       context: ./nexus-nginx-php-fpm/
       dockerfile: Dockerfile
@@ -56,7 +56,7 @@ services:
       - ${NEXUS_DOCKER_HOME}\files\mysql\my.cnf:/etc/mysql/conf.d/my.cnf
 
   ng-serve:
-    image: mvcaaa/nexus-ng-serve:1.9.14
+    image: registry.gitlab.com/mvcaaa/nexus-docker/ng-serve
     build:
       context: ./nexus-ng-serve/
       dockerfile: Dockerfile
