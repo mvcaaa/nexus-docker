@@ -1,0 +1,84 @@
+version: '3.6'
+
+services:
+  nginx-php-fpm:
+    image: "registry.gitlab.com/mvcaaa/nexus-docker/nginx-php-fpm"
+    build:
+      context: ./nexus-nginx-php-fpm/
+      dockerfile: Dockerfile
+    volumes:
+      - ${NEXUS_HOME}:/var/www/installations/nexus
+      - ${NEXUS_BOOT}:/var/www/boot
+      - ${NEXUS_DOCKER_HOME}\files\nginx\certs:/opt/certs
+      - ${NEXUS_DOCKER_HOME}\files\nginx-php-fpm-start.sh:/start.sh
+      - ${NEXUS_DOCKER_HOME}\files\nginx:/etc/nginx
+      # This is caches/composer vendor folder
+      - php-vendor:/var/www/installations/nexus/lib/vendor
+      - php-vendor-cache:/root/.composer
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+    environment:
+        ENABLE_XDEBUG: ${IS_XDEBUG_ENABLED}
+        PHP_XDEBUG_ENABLED: ${IS_XDEBUG_ENABLED}
+        XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+        # WEBROOT: "/var/www/installations/nexus"
+        APPLICATION_ENV: ${APPLICATION_ENV}
+        COMPOSER_WORKING_DIR: /var/www/installations/nexus/lib
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - redis
+      - mysql
+      - ng-serve
+    depends_on:
+      - redis
+      - mysql
+
+  redis:
+    image: redis:alpine
+    environment:
+        REDISCLI_HISTFILE: /data/.rediscli_history
+    ports:
+       - 6379:6379
+    volumes:
+      - ${REDIS_DATA_DIR}:/data
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Europe/Helsinki
+    ports:
+      - 3306:3306
+    command: --skip-grant-tables
+    volumes:
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql
+      - ${NEXUS_DOCKER_HOME}\files\mysql\my.cnf:/etc/mysql/conf.d/my.cnf
+
+  ng-serve:
+    image: registry.gitlab.com/mvcaaa/nexus-docker/ng-serve
+    build:
+      context: ./nexus-ng-serve/
+      dockerfile: Dockerfile
+    entrypoint: /bin/sh
+    command: >
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/master.key
+      --ssl-cert /opt/certs/master.pem"
+    volumes:
+      - ${NEXUS_HOME}:/var/www/installations/nexus
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+      - ng-build-dist:/var/www/installations/nexus/nexus_ng/dist
+      - ${NEXUS_DOCKER_HOME}\files\nginx\certs:/opt/certs
+    ports:
+      - 4200:4200   # ng serve
+      - 35729:35729 # live reload
+      - 9876:9876   # karma server
+    environment:
+      - NODE_MAX_MEM=1024
+
+volumes:
+  php-vendor:
+  php-vendor-cache:
+  ng-serve-nodemodules:
+  ng-build-dist:

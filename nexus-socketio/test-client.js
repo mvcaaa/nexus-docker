@@ -1,7 +1,19 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 console.debug("Initializing socketio");
 
+var fs = require('fs');
+
 const io = require("socket.io-client");
-const	ioClient = io.connect("http://localhost:5000/enkora");
+const ioClient = io.connect("https://mvc.local:5000/enkora", 
+	{
+		ca: [ fs.readFileSync('mvc.local.crt') ],
+		rejectUnauthorized: false,
+		transports: ['websocket']
+	}
+);
+
+console.debug("Initialisation complete");
 
 var tick_timer = null;
 
@@ -16,5 +28,10 @@ ioClient.on('connect', function() {
 });
 
 ioClient.on('disconnect', function() {
+	console.debug("Disconnected");
 	clearTimeout(tick_timer);
+});
+
+ioClient.on('error', function(error) {
+	console.debug(error);
 });

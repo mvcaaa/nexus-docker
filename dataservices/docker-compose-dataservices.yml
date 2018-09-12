@@ -1,0 +1,68 @@
+version: '3.6'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=/run/secrets/mysql_secret
+      - TZ=Europe/Helsinki
+    secrets:
+      - mysql_secret
+    volumes:
+      - D:\mysql_data:/var/lib/mysql
+      - D:\Work\enkora\docker\nexus-docker\dataservices\my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - 3306:3306
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - core-infra
+
+  mysql-im:
+    image: mysql:5.7
+    container_name: mysql
+    command: --skip-grant-tables
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - TZ=Europe/Helsinki
+    volumes:
+      - M:\mysql_data:/var/lib/mysql
+      - D:\Work\enkora\docker\nexus-docker\dataservices\my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - 3307:3306
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: any
+    networks:
+      - core-infra
+
+  redis:
+    image: redis:alpine
+    environment:
+        REDISCLI_HISTFILE: /data/.rediscli_history
+    ports:
+       - 6379:6379
+    volumes:
+      - D:\redis_data:/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - core-infra
+
+secrets:
+  mysql_secret:
+    file: ./.my_secret.txt
+
+networks:
+  core-infra:
+    external: true
+
+
+
+

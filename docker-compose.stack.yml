@@ -1,0 +1,79 @@
+version: '3.6'
+
+services:
+  nginx-php-fpm:
+    image: "registry.gitlab.com/mvcaaa/nexus-docker/nginx-php-fpm"
+    build:
+      context: ./nexus-nginx-php-fpm/
+      dockerfile: Dockerfile
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - D:\Work\enkora\boot:/var/www/boot
+      - D:\Work\enkora\docker\nexus-docker\files\nginx\certs:/opt/certs
+      - D:\Work\enkora\docker\nexus-docker\files\nginx-php-fpm-start.sh:/start.sh
+      - D:\Work\enkora\docker\nexus-docker\files\nginx:/etc/nginx
+      # This is caches/composer vendor folder
+      - php-vendor:/var/www/installations/nexus/lib/vendor
+      - php-vendor-cache:/root/.composer
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+    environment:
+        ENABLE_XDEBUG: 1
+        PHP_XDEBUG_ENABLED: 1
+        XDEBUG_CONFIG: "remote_handler=dbgp remote_mode=req remote_enable=1 remote_host=10.0.75.1 remote_port=9005 idekey=PHPSTORM remote_autostart=1 remote_log=/dev/null"
+        # WEBROOT: "/var/www/installations/nexus"
+        APPLICATION_ENV: "development"
+        COMPOSER_WORKING_DIR: /var/www/installations/nexus/lib
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - redis
+      - mysql
+      - ng-serve
+    # links:
+    #   - redis
+    #   - mysql
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - core-infra
+
+  ng-serve:
+    image: registry.gitlab.com/mvcaaa/nexus-docker/ng-serve
+    build:
+      context: ./nexus-ng-serve/
+      dockerfile: Dockerfile
+    entrypoint: /bin/sh
+    command: >
+      -c "cd /var/www/installations/nexus/nexus_ng ; npm install --no-save ; $$(npm bin)/ng serve --aot --poll 1000
+      --disable-host-check --delete-output-path=false --host 0.0.0.0 --ssl true --ssl-key /opt/certs/mvc.local.key
+      --ssl-cert /opt/certs/mvc.local.crt"
+    volumes:
+      - D:\Work\enkora\nexus:/var/www/installations/nexus
+      - ng-serve-nodemodules:/var/www/installations/nexus/nexus_ng/node_modules
+      - ng-build-dist:/var/www/installations/nexus/nexus_ng/dist
+      - D:\Work\enkora\docker\nexus-docker\files\nginx\certs:/opt/certs
+    ports:
+      - 4200:4200   # ng serve
+      - 35729:35729 # live reload
+      - 9876:9876   # karma server
+    environment:
+      - NODE_MAX_MEM=1024
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - core-infra
+
+networks:
+  core-infra:
+    external: true
+
+volumes:
+  php-vendor:
+  php-vendor-cache:
+  ng-serve-nodemodules:
+  ng-build-dist:

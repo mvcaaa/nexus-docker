@@ -9,8 +9,9 @@
 	},
 	"dependencies": {
 		"express": "^4.16.3",
-		"socket.io": "*",
-		"socket.io-client": "*"
+		"socker.io": "0.0.0-alpha-beta",
+		"socket.io": "^2.1.1",
+		"socket.io-client": "^2.1.1"
 	},
 	"optionalDependencies": {},
 	"engines": {
